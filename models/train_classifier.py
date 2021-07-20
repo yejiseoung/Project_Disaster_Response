@@ -82,8 +82,7 @@ def evaluate_model(model: GridSearchCV, X_test: pd.DataFrame, y_test: pd.DataFra
     """
     y_pred = model.predict(X_test)
     print(classification_report(y_test, y_pred, target_names=category_names))    
-    print('--------------------------------------------------')
-    print('\n', classification_report(y_train.values, y_pred_train, target_names=y.columns.values))
+    
 
 
 
