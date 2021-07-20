@@ -1,4 +1,6 @@
 import sys
+import pandas as pd
+from sqlalchemy import create_engine
 
 def category_to_numeric(categories: pd.DataFrame) -> pd.DataFrame:
     """ Function to change categorical data to numeric.
@@ -43,7 +45,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     Args: DataFrame
     Returns: DataFrame
     """
-    return df.drop_duplicates(inplace=True)
+    return df.drop_duplicates()
     
 
 def save_data(df: pd.DataFrame, database_filename: str) -> None:
@@ -53,11 +55,10 @@ def save_data(df: pd.DataFrame, database_filename: str) -> None:
           
     Returns: None
     """
-    from sqlalchemy import create_engine
-    engin = create_engine('sqlite:///{}.db'.format(database_filename))
-    df.to_sql(database_filename, engine, if_exists='replace', index=False)
-    
-    
+    engine = create_engine('sqlite:///{}'.format(database_filename))
+    df.to_sql('disaster', engine, if_exists='replace', index=False)
+
+
 
 def main():
     if len(sys.argv) == 4:

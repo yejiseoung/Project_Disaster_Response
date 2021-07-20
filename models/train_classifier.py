@@ -1,6 +1,22 @@
 import sys
+import numpy as np
+import pandas as pd
+from sqlalchemy import create_engine
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import fbeta_score, make_scorer
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.multioutput import MultiOutputClassifier
+import pickle
+import nltk
+nltk.download('punkt')
+nltk.download('wordnet')
+from typing import Tuple, List
 
-def load_data(database_filepath, database_filename):
+
+def load_data(database_filepath: str) -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
     """ Function to load the database into pandas DataFrame
     Args: database_filepath: Path for the database
           database_filename: Name for the database
@@ -9,9 +25,9 @@ def load_data(database_filepath, database_filename):
              An ordered list of categories
     """
     # Loading database into pandas DataFrame
-    from sqlalchemy import create_engine
+    
     engine = create_engine('sqlite:///{}'.format(database_filepath))
-    df = pd.read_sql("SELECT * FROM {}".format(database_filename), engine)
+    df = pd.read_sql("SELECT * FROM disaster", engine)
 
     # Creating DataFrame for x variables
     X = df['message']
@@ -22,7 +38,7 @@ def load_data(database_filepath, database_filename):
     return X, y, categories 
 
 
-def tokenize(text):
+def tokenize(text: str) -> List[str]:
     """ Function to tokenize text
     Args: Text
     Returns: List of tokens
@@ -39,7 +55,7 @@ def build_model()->GridSearchCV:
     """
     # Pipeline for transforming data, fitting to model and predict the model
     pipeline = Pipeline([
-        ('cvect': CountVectorizer(tokenizer=tokenize)),
+        ('cvect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', RandomForestClassifier())
     ])
@@ -89,7 +105,7 @@ def main():
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
         print('Building model...')
-        model = building_model()
+        model = build_model()
 
         print('Training model...')
         model.fit(X_train, y_train)
